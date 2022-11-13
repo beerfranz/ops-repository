@@ -19,8 +19,23 @@ class OperationTagFilter implements FilterInterface
                     'description' => 'Tags',
                     'explode' => false,
                 ],
-            ]
+            ],
+            'from' => [
+                'property' => null,
+                'type' => Type::BUILTIN_TYPE_STRING,
+                'required' => false,
+                'openapi' => [
+                    'description' => 'From',
+                ],
+            ],
+            'to' => [
+                'property' => null,
+                'type' => Type::BUILTIN_TYPE_STRING,
+                'required' => false,
+                'openapi' => [
+                    'description' => 'To',
+                ],
+            ],
         ];
     }
-
 }

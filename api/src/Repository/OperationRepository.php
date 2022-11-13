@@ -22,7 +22,19 @@ class OperationRepository extends ServiceEntityRepository
 
         foreach($criteria as $key => $value)
         {
-            if (is_array($value))
+            if ($key === 'from')
+            {
+                $query = $query->andWhere('operation.startedAt > :from OR operation.endedAt > :from')
+                               ->setParameter('from', $value);
+
+            }
+            elseif ($key === 'to')
+            {
+                $query = $query->andWhere('operation.startedAt < :to OR operation.endedAt < :to')
+                               ->setParameter('to', $value);
+
+            }
+            elseif (is_array($value))
             {
                 if (isset($value['type']))
                 {

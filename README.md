@@ -67,6 +67,9 @@ grafana-cli plugins install marcusolsson-json-datasource
     * `$.[*].tagsString`
 4. OPTIONAL Filter operations, by adding in the tab `params` some key/values:
   * By operations tags: key => tags, value => tag1,tag2
+  * By dates from & to
+    * from: key => from, value => `$__isoFrom()`
+    * to: key => to, value => `$__isoTo()`
 
 ![Grafana dashboard annotation config](./asset/grafana_annotation_source_config.png)
 
