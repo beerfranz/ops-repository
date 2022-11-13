@@ -20,31 +20,9 @@ swagger URL: /api/docs
 **Tag**
 * Name: must be uniq
 
-## Start local develop
+## Security
 
-**API**
-
-1. Setup the database
-```
-docker-compose up -d db-update
-```
-2. Start the API
-```
-docker-compose up -d api
-```
-
-Run tests:
-```
-docker-compose exec api php bin/phpunit --coverage-html var/code_coverage/
-```
-
-
-**UI**
-
-```
-docker-compose run ui npm install
-docker-compose up -d ui
-```
+**To be defined**
 
 ## Connection with Grafana
 
@@ -73,6 +51,30 @@ grafana-cli plugins install marcusolsson-json-datasource
 
 ![Grafana dashboard annotation config](./asset/grafana_annotation_source_config.png)
 
+## Start local develop
+
+**API**
+
+1. Setup the database
+```
+docker-compose up -d db-update
+```
+2. Start the API
+```
+docker-compose up -d api
+```
+
+Run tests:
+```
+docker-compose exec api php bin/phpunit --coverage-html var/code_coverage/
+```
+
+**UI**
+Not working
+```
+docker-compose run ui npm install
+docker-compose up -d ui
+```
 
 
 ## Knowledge base
