@@ -65,6 +65,8 @@ grafana-cli plugins install marcusolsson-json-datasource
     * `$.[*].startedAt`
     * `$.[*].endedAt`
     * `$.[*].tagsString`
+4. OPTIONAL Filter operations, by adding in the tab `params` some key/values:
+  * By operations tags: key => tags, value => tag1,tag2
 
 ![Grafana dashboard annotation config](./asset/grafana_annotation_source_config.png)
 
@@ -79,8 +81,5 @@ docker run --rm -it -v $PWD/api2:/app -u $(id -u):$(id -g) composer create-proje
 docker run --rm -it -v $PWD/api2:/app -u $(id -u):$(id -g) composer require apiplatform
 docker run --rm -it -v $PWD/api2:/app -u $(id -u):$(id -g) composer require webapp
 docker run --rm -it -v $PWD/api2:/app -u $(id -u):$(id -g) composer require annotations
-```
-
-docker run --rm -it -v $PWD/api2:/app -u $(id -u):$(id -g) composer require webapp
-docker run --rm -it -v $PWD/api2:/app -u $(id -u):$(id -g) composer require annotations
 docker run --rm -it -v $PWD/api2:/app -u $(id -u):$(id -g) composer require twig
+```

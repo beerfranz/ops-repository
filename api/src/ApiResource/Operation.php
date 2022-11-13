@@ -7,6 +7,8 @@ use App\State\OperationStateProcessor;
 use App\State\OperationStateProvider;
 use App\Entity\Operation as OperationEntity;
 
+use App\Filter\OperationTagFilter;
+
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiFilter;
@@ -24,6 +26,7 @@ use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
     normalizationContext: ['groups' => ['operation:read']],
     denormalizationContext: ['groups' => ['operation:write']],
 )]
+#[ApiFilter(OperationTagFilter::class)]
 class Operation
 {
     #[ApiProperty(identifier: true)]

@@ -23,11 +23,12 @@ final class OperationStateProvider implements ProviderInterface
     {
         $repo = $this->_entityManager->getRepository(OperationEntity::class);
 
-
         if ($operation instanceof CollectionOperationInterface) {
 
             $maxItemPerPage = 30;
             $offset = 0;
+
+            $criteria = [];
 
             if (isset($context['filters']['page']))
             {
@@ -36,7 +37,14 @@ final class OperationStateProvider implements ProviderInterface
                 $offset = ($page - 1) * $maxItemPerPage;
             }
             
-            $entities = $repo->findBy([], [], $maxItemPerPage, $offset);
+            if (isset($context['filters']['tags']))
+            {
+                $tags = explode(',' , $context['filters']['tags']);
+                
+                $criteria['tags.name'] = $tags;
+            }
+
+            $entities = $repo->findBy($criteria, [], $maxItemPerPage, $offset);
 
             $items = [];
 
