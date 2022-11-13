@@ -1,0 +1,36 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Operations{% endblock %}
+
+{% block body %}
+<div class="row">
+  <div class="col-md-6">
+    <h3>Operations</h3>
+    <table id="operations-table">
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+
+<script>
+  $(document).ready(function() {
+    $.ajax({
+      url: '/api/operations',
+      dataType: 'json',
+      success: function(data) {
+        console.log(data);
+        data.forEach(function(operation) {
+
+          
+
+          $('#operations-table').append('<tr><td></tr>');
+        });
+      }
+    })
+  });
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,15 @@
+<?php
+
+namespace App\Repository;
+
+use App\Entity\Operation;
+use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+
+class OperationRepository extends ServiceEntityRepository
+{
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, Operation::class);
+    }
+}
