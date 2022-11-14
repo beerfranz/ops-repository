@@ -5,9 +5,7 @@ namespace App\Entity;
 use App\Repository\TagRepository;
 
 use ApiPlatform\Metadata\ApiResource;
-// use ApiPlatform\Core\Annotation\ApiResource;
-use ApiPlatform\Core\Annotation\ApiSubresource;
-use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Metadata\ApiProperty;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 

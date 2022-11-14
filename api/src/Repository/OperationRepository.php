@@ -13,7 +13,7 @@ class OperationRepository extends ServiceEntityRepository
         parent::__construct($registry, Operation::class);
     }
 
-    public function findBy(array $criteria, ?array $orderBy = null, $limit = null, $offset = null)
+    public function findBy(array $criteria, ?array $orderBy = null, $limit = null, $offset = null): ?array
     {
         $query = $this->createQueryBuilder('operation')
                       ->join('operation.tags', 'tags')
@@ -24,33 +24,21 @@ class OperationRepository extends ServiceEntityRepository
         {
             if ($key === 'from')
             {
-                $query = $query->andWhere('operation.startedAt > :from OR operation.endedAt > :from')
+                $query = $query->andWhere('operation.startedAt >= :from OR operation.endedAt >= :from')
                                ->setParameter('from', $value);
 
             }
             elseif ($key === 'to')
             {
-                $query = $query->andWhere('operation.startedAt < :to OR operation.endedAt < :to')
+                $query = $query->andWhere('operation.startedAt <= :to OR operation.endedAt <= :to')
                                ->setParameter('to', $value);
 
             }
             elseif (is_array($value))
             {
-                if (isset($value['type']))
-                {
-                    if ($value['type'] === 'BETWEEN')
-                    {
-                        $safe_key_from = 'from_' . str_replace('.', '_', $key);
-                        $safe_key_to   = 'to_' . str_replace('.', '_', $key);
-                        $query = $query->andWhere($key . ' BETWEEN :' . $safe_key_from . ' AND :' . $safe_key_to);
-                        $query = $query->setParameter($safe_key_from, $value['from']);
-                        $query = $query->setParameter($safe_key_to, $value['to']);
-                    }
-                } else {
-                    $safe_key = str_replace('.', '_', $key);
-                    $query->andWhere($key . ' IN (:' . $safe_key . ')');
-                    $query = $query->setParameter($safe_key, $value);
-                }
+                $safe_key = str_replace('.', '_', $key);
+                $query->andWhere($key . ' IN (:' . $safe_key . ')');
+                $query = $query->setParameter($safe_key, $value);
             } else {
                 $safe_key = str_replace('.', '_', $key);
                 $query = $query->andWhere($key . ' = :' . $safe_key);

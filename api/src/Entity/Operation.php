@@ -23,8 +23,8 @@ class Operation
     #[ORM\Column(type: 'string', length: 255)]
     private $name;
 
-    #[ORM\Column(type: 'string', length: 255)]
-    private $description;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private $description = null;
 
     #[ORM\Column(type: 'datetime')]
     #[Assert\DateTimeInterface]
@@ -71,7 +71,7 @@ class Operation
         return $this->description;
     }
 
-    public function setDescription(string $description): Operation
+    public function setDescription(?string $description): Operation
     {
         $this->description = $description;
         return $this;

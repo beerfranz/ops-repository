@@ -95,7 +95,7 @@ class Operation
         return $this->description;
     }
 
-    public function setDescription(string $description): Operation
+    public function setDescription(?string $description): Operation
     {
         $this->description = $description;
         return $this;
