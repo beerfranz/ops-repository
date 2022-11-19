@@ -15,19 +15,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      # - name: Set up QEMU
-      #   uses: docker/setup-qemu-action@v2
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
         with:
           driver-opts: network=host
 
-      # - name: Login to Docker Hub
-      #   uses: docker/login-action@v2
-      #   with:
-      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
-      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
         uses: docker/build-push-action@v3
@@ -35,36 +32,17 @@ jobs:
           context: api
           file: api/Dockerfile.prod
           push: true
-          tags: localhost:5000/ops-repository:prod-local
-          # target: app_php
-
-      - name: Debug
-        run: |
-          docker images
+          tags: |
+            localhost:5000/ops-repository:prod-local
+            beerfranz/ops-repository-api:latest
 
       - name: Build and push caddy
         uses: docker/build-push-action@v3
         with:
           build-args: |
-            REGISTRY=localhost:5000/
+            APP_REGISTRY=localhost:5000/
           file: Dockerfile.api.alpine.caddy
-          push: false
-          tags: ops-repository:prod-local-caddy
-
-      - name: Debug
-        run: |
-          docker images
-
-      # - name: Run Buildx
-      #   run: |
-      #     docker buildx build \
-      #       --platform linux/amd64 \
-      #       --output "type=image,push=true" \
-      #       --file ./Dockerfile \
-      #       -t worshiptheuseless/nginx:latest .
-
-      # -t worshiptheuseless/nginx:${{ steps.set_version.outputs.tag }} \
-
-      # - name: Logout of Amazon ECR
-      #   if: always()
-      #   run: docker logout ${{ steps.login-ecr.outputs.registry }}
+          push: true
+          tags: |
+            ops-repository:prod-local-caddy
+            beerfranz/ops-repository-caddy:latest
