@@ -5,10 +5,18 @@ on:
 jobs:
   dockerhub:
     runs-on: ubuntu-latest
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
     name: build docker images and push them to dockerhub
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      # - name: Set up QEMU
+      #   uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -24,8 +32,8 @@ jobs:
         with:
           context: api
           file: api/Dockerfile.prod
-          push: false
-          tags: ops-repository:prod-local
+          push: true
+          tags: localhost:5000/ops-repository:prod-local
           # target: app_php
 
       - name: Debug
@@ -35,6 +43,8 @@ jobs:
       - name: Build and push caddy
         uses: docker/build-push-action@v3
         with:
+          build-args: |
+            REGISTRY=localhost:5000/
           file: Dockerfile.api.alpine.caddy
           push: false
           tags: ops-repository:prod-local-caddy
