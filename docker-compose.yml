@@ -1,5 +1,30 @@
 version: '3'
+
 services:
+
+  prod:
+    build:
+      context: api
+      dockerfile: Dockerfile.prod
+    image: ops-repository:prod-local
+    environment:
+      APP_SECRET: 4ac19caa63d28c7a8a7da502a4629201
+      DATABASE_URL: "postgresql://ops:pass@postgres:5432/ops?serverVersion=13&charset=utf8"
+    volumes:
+      - php_socket:/var/run/php
+
+  caddy:
+    build:
+      context: .
+      dockerfile: Dockerfile.api.alpine.caddy
+    image: ops-repository:prod-local-caddy
+    environment:
+      SERVER_NAME: ${SERVER_NAME:-localhost, caddy:80}
+    volumes:
+      - php_socket:/var/run/php
+    ports:
+      - "80:80"
+      - "443:443"
 
   api:
     build:
@@ -85,3 +110,4 @@ services:
 
 volumes:
   ui_node_modules:
+  php_socket:
