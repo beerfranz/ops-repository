@@ -22,8 +22,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: "api"
-          file: Dockerfile.prod
+          context: api
+          file: api/Dockerfile.prod
           push: false
           tags: ops-repository:prod-local
           # target: app_php
