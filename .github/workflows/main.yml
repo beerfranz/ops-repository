@@ -28,6 +28,10 @@ jobs:
           tags: ops-repository:prod-local
           # target: app_php
 
+      - name: Debug
+        run: |
+          docker images
+
       - name: Build and push caddy
         uses: docker/build-push-action@v3
         with:
