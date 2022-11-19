@@ -44,5 +44,4 @@ jobs:
           file: Dockerfile.api.alpine.caddy
           push: true
           tags: |
-            ops-repository:prod-local-caddy
             beerfranz/ops-repository-caddy:latest
