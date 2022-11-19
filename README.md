@@ -22,7 +22,9 @@ swagger URL: /api/docs
 
 ## Security
 
-**To be defined**
+**No security layer is embedded.**
+
+The recommandation is to use a reverse proxy in front of this application to handle authN & authZ, like OIDC, api key, etc...
 
 ## Connection with Grafana
 

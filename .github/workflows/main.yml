@@ -22,7 +22,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: "{{defaultContext}}:api"
+          context: "api"
           file: {context}/Dockerfile.prod
           push: false
           tags: ops-repository:prod-local
@@ -31,7 +31,6 @@ jobs:
       - name: Build and push caddy
         uses: docker/build-push-action@v3
         with:
-          context: "{{defaultContext}}"
           file: {context}/Dockerfile.api.alpine.caddy
           push: false
           tags: ops-repository:prod-local-caddy
