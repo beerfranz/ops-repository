@@ -23,7 +23,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: "api"
-          file: {context}/Dockerfile.prod
+          file: Dockerfile.prod
           push: false
           tags: ops-repository:prod-local
           # target: app_php
@@ -31,7 +31,7 @@ jobs:
       - name: Build and push caddy
         uses: docker/build-push-action@v3
         with:
-          file: {context}/Dockerfile.api.alpine.caddy
+          file: Dockerfile.api.alpine.caddy
           push: false
           tags: ops-repository:prod-local-caddy
 
