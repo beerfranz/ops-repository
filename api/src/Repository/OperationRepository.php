@@ -46,7 +46,11 @@ class OperationRepository extends ServiceEntityRepository
             }
         }
 
-        if (null !== $orderBy)
+        if (null === $orderBy or count($orderBy) === 0)
+        {
+            $query = $query->orderBy('operation.startedAt', 'DESC');
+        }
+        else
         {
             foreach ($orderBy as $field => $sens)
             {

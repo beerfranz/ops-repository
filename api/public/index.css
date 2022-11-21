@@ -1,0 +1,37 @@
+ul#form-list-tags {
+
+  list-style: none;
+  margin: 0px;
+  padding: 0px;
+  display: inline-block;
+}
+
+
+ul#form-list-tags li {
+  display: inline-block;
+  background: #555;
+  color: white;
+  padding: 3px 5px 3px 10px;
+  border-radius: 15px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+ul#form-list-tags li a {
+  color: white;
+  text-decoration: none;
+  margin-left: 5px;
+  font-size: 10px;
+  background: #333;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  display: inline-flex;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+}
+
+ul#form-list-tags li a:hover {
+  color: red;
+}

@@ -34,7 +34,7 @@ class Tag
     #[ApiProperty(identifier: true)]
     private $name;
 
-    #[ORM\ManyToMany(targetEntity: Operation::class, mappedBy: 'tags', cascade: ["all"])]
+    #[ORM\ManyToMany(targetEntity: Operation::class, mappedBy: 'tags', cascade: ["persist"])]
     #[Groups(['tag:read'])]
     #[ApiSubresource]
     private Collection $operations;

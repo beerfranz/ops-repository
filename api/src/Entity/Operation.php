@@ -38,14 +38,12 @@ class Operation
     #[Assert\DateTimeInterface]
     private ?\DateTimeInterface $createdAt = null;
 
-    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'operations', cascade: ["all"])]
+    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'operations', cascade: ["persist"], orphanRemoval: true)]
     private Collection $tags;
 
     public function __construct()
     {
         $this->setCreatedAt();
-        $this->setStartedAt();
-        $this->setEndedAt($this->getStartedAt());
 
         $this->tags = new ArrayCollection();
     }
@@ -53,6 +51,12 @@ class Operation
     public function getId()
     {
         return $this->id;
+    }
+
+    public function setId(int $id) :Operation
+    {
+        $this->id = $id;
+        return $this;
     }
 
     public function getName()
@@ -96,6 +100,10 @@ class Operation
     public function setStartedAt(\DatetimeInterface $startedAt = new \DateTime()): Operation
     {
         $this->startedAt = $startedAt;
+        if ($this->endedAt === null)
+        {
+            $this->endedAt = $startedAt;
+        }
         return $this;
     }
 
@@ -107,6 +115,12 @@ class Operation
     public function setEndedAt(\DatetimeInterface $endedAt = new \DateTime()): Operation
     {
         $this->endedAt = $endedAt;
+        return $this;
+    }
+
+    public function removeTags(): self
+    {
+        $this->tags = new ArrayCollection();
         return $this;
     }
 

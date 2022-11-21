@@ -6,7 +6,8 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use ApiPlatform\Metadata\DeleteOperationInterface;
 
-//use App\Entity\Operation2;
+use Psr\Log\LoggerInterface;
+
 use App\ApiResource\Operation as OperationApi;
 use App\Entity\Operation as OperationEntity;
 use App\Entity\Tag;
@@ -17,26 +18,44 @@ use Symfony\Component\HttpFoundation\RequestStack;
 class OperationStateProcessor implements ProcessorInterface
 {
 
+    private $logger;
+
     public function __construct(
         EntityManagerInterface $entityManager,
-        RequestStack $request
+        RequestStack $request,
+        LoggerInterface $logger
     ) {
         $this->_entityManager = $entityManager;
         $this->_request = $request->getCurrentRequest();
+        $this->logger = $logger;
     }
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ?object
     {
 
+        $repo = $this->_entityManager->getRepository(OperationEntity::class);
+
         if ($operation instanceof DeleteOperationInterface) {
-            $repo = $this->_entityManager->getRepository(OperationEntity::class);
             $entity = $repo->find($uriVariables);
             $this->_entityManager->remove($entity);
             $this->_entityManager->flush();
+
+            $this->logger->info('Delete operation');
             return null;
         }
 
-        $entity = new OperationEntity();
+        if ($data->getId() !== null)
+        {
+            $entity = $repo->find($uriVariables);
+            $entity->removeTags();
+            $this->logger->info('Put or patch operation');
+        }
+        else
+        {
+            $entity = new OperationEntity();
+            $this->logger->info('Create operation');
+        }
+
         $entity->setName($data->getName());
         $entity->setDescription($data->getDescription());
         $entity->setCreatedAt($data->getCreatedAt());
@@ -57,14 +76,12 @@ class OperationStateProcessor implements ProcessorInterface
             $entity->addTag($tag);
 
             $tag->addOperation($entity);
-            $this->_entityManager->persist($tag);
         }
 
         $this->_entityManager->persist($entity);
         $this->_entityManager->flush();
 
         $data->setId($entity->getId());
-
         return $data;
     }
 

@@ -31,7 +31,7 @@ class Operation
 {
     #[ApiProperty(identifier: true)]
     #[Groups(['operation:read'])]
-    private $id;
+    private $id = null;
 
     #[Assert\Length(max: 255)]
     #[Groups(['operation:read', 'operation:write',])]
@@ -62,8 +62,6 @@ class Operation
     public function __construct()
     {
         $this->setCreatedAt();
-        $this->setStartedAt();
-        $this->setEndedAt($this->getStartedAt());
 
         $this->tags = [];
     }
@@ -120,6 +118,11 @@ class Operation
     public function setStartedAt(\DateTimeInterface $startedAt = new \DateTime()): Operation
     {
         $this->startedAt = $startedAt;
+        if ($this->endedAt === null)
+        {
+            $this->setEndedAt($startedAt);
+        }
+        
         return $this;
     }
 
