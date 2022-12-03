@@ -1,0 +1,88 @@
+{
+    # Debug
+    {$CADDY_DEBUG}
+    admin 0.0.0.0:2019
+    servers {
+        metrics
+    }
+
+    order authenticate before respond
+    order authorize before basicauth
+
+    security {
+        oauth identity provider generic {
+            realm generic
+            driver generic
+            client_id {$OAUTH_CLIENT_ID}
+            client_secret {$OAUTH_CLIENT_SECRET}
+            scopes openid email profile
+            metadata_url {$OAUTH_METADATA_URL}
+        }
+
+        authentication portal authz_proxy_portal {
+            # crypto key sign-verify {env.JWT_SHARED_KEY}
+            enable identity provider generic
+            transform user {
+                match realm generic
+                action add role OPS_ADMIN
+            }
+        }
+
+        authorization policy mypolicy {
+            set auth url /auth/oauth2/generic/
+            # crypto key verify {env.JWT_SHARED_KEY}
+            allow roles OPS_ADMIN OPS_READONLY
+            validate bearer header
+            inject headers with claims
+        }
+    }
+}
+
+{$SERVER_NAME}
+
+log
+
+route /auth/* {
+    authenticate with authz_proxy_portal
+}
+
+@basicauth {
+    header Authorization "Basic *"
+}
+
+route @basicauth {
+    # Use the command caddy hash-password to generate a hash
+    basicauth {
+        import basicauthN
+    }
+    map {http.auth.user.id}  {roles} {
+        import basicauthZ
+    }
+
+    tracing {
+        span caddy
+    }
+    root * /srv/app/public
+    vulcain
+    push
+    php_fastcgi unix//var/run/php/php-fpm.sock {
+        header_up x-token-user-roles {roles}
+        header_up x-token-user-email {http.auth.user.id}
+    }
+    encode zstd gzip
+    file_server
+}
+
+
+route {
+    authorize with mypolicy
+    tracing {
+        span caddy
+    }
+    root * /srv/app/public
+    vulcain
+    push
+    php_fastcgi unix//var/run/php/php-fpm.sock
+    encode zstd gzip
+    file_server
+}

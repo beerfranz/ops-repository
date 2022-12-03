@@ -1,0 +1,47 @@
+on:
+  push:
+    branches: main
+
+jobs:
+  dockerhub:
+    runs-on: ubuntu-latest
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
+    name: build docker images and push them to dockerhub
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          driver-opts: network=host
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: api
+          file: api/Dockerfile.prod
+          push: true
+          tags: |
+            localhost:5000/ops-repository:prod-local
+            beerfranz/ops-repository-api:latest
+
+      - name: Build and push caddy
+        uses: docker/build-push-action@v3
+        with:
+          build-args: |
+            APP_REGISTRY=localhost:5000/
+          file: Dockerfile.api.alpine.caddy
+          push: true
+          tags: |
+            beerfranz/ops-repository-caddy:latest

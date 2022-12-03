@@ -1,0 +1,4 @@
+# caddy hash-password --plaintext "password"
+
+grafana         {$AUTH_GRAFANA_HASHED_PASSWORD}
+basicAuthAdmin  $2a$14$7oOdFtJwEjD0rNpCt.ugzeSAJIoniC4L821whwRp1YCxLUAQ5MXG6  # thisIsAdmin

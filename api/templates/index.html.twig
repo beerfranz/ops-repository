@@ -1,0 +1,313 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Operations{% endblock %}
+
+{% block body %}
+
+<div class="row">
+  <div class="col-md-6">
+    <h3>
+      List
+      <a href="#" id="refreshTable">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+          <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+        </svg></a>
+      {% if is_granted('OPS_WRITE') %}
+        <a href="#" id="add" data-toggle="modal" data-target="#modal-operation">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+          <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+        </svg></a>
+      {% endif %}
+    </h3>
+  
+    <table class="table">
+      <thead><tr><th>ID</th><th>Title</th><th>Started At</th><th>Ended At</th><th>Tags</th><th>Actions</th></tr></thead>
+      <tbody id="operations-table">
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id="modal-operation">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Operation</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="form-error" class="alert alert-danger hidden" role="alert"></div>
+        <form class="needs-validation" novalidate id="operation-form">
+          <input type="hidden" class="form-control" id="form-id">
+          <div class="form-group row">
+            <label for="form-title" class="col-sm-2 col-form-label">Title</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="form-title" required>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="form-description" class="col-sm-2 col-form-label">Description</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="form-description" placeholder="description">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="form-startedAt" class="col-sm-2 col-form-label">Started At</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="form-startedAt" placeholder="YYYY-mm-ddTHH:MM:SS" required>
+            </div>
+
+            <label for="form-endedAt" class="col-sm-2 col-form-label">Ended At</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="form-endedAt" placeholder="YYYY-mm-ddTHH:MM:SS">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="form-tags" class="col-sm-2 col-form-label">Tags</label>
+            <div class="col-sm-10">
+              <ul id="form-list-tags"></ul>
+              <input type="text" class="form-control" id="form-tags" placeholder="type and Enter">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="modal-save">Save changes</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+  var trash = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/></svg>';
+
+  var update = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16"><path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/><path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/></svg>';
+
+  var tags = [];
+  var availableTags = [];
+
+  function refreshTable() {
+    $.ajax({
+      url: '/api/operations',
+      dataType: 'json',
+      method: 'GET',
+      contentType: 'application/json',
+      beforeSend: function() {
+        $('#operations-table').empty();
+      },
+      success: function(data) {
+
+        data.forEach(function(operation) {
+          $('#operations-table').append('<tr><td>' + operation.id + '</td><td>' + operation.name + '</td><td>' + operation.startedAt + '</td><td>' + operation.endedAt + '</td><td>' + operation.tagsString + '</td><td>{% if is_granted('OPS_WRITE') %}<a class="operation-update" data-id="' + operation.id + '">' + update + '</a><a class="operation-delete" data-id="' + operation.id + '">' + trash + '</a>{% endif %}</td></tr>');
+        });
+      }
+    });
+  }
+
+  function post(operation) {
+    $.ajax({
+      url: '/api/operations',
+      dataType: 'json',
+      contentType: 'application/json',
+      method: 'POST',
+      data: JSON.stringify(operation),
+      success: function(data) {
+        flushForm();
+        $('#modal-operation').modal('hide');
+        refreshTable();
+      }
+    });
+  }
+
+  function put(operation) {
+    $.ajax({
+      url: '/api/operations/' + operation.id,
+      dataType: 'json',
+      contentType: 'application/json',
+      method: 'PUT',
+      data: JSON.stringify(operation),
+      success: function(data) {
+        flushForm();
+        $('#modal-operation').modal('hide');
+        refreshTable();
+      }
+    });
+  }
+
+  function flushForm() {
+    $('#operation-form').children('input').val('');
+    $('#form-error').addClass('hidden');
+  }
+
+  $(document).ready(function() {
+    refreshTable();
+
+    $('#form-startedAt').daterangepicker({
+      singleDatePicker: true,
+      timePicker: true,
+      startDate: moment().startOf('minute'),
+      locale: {
+        format: 'YYYY-MM-DDThh:mm'
+      }
+    });
+    $('#form-endedAt').daterangepicker({
+      singleDatePicker: true,
+      timePicker: true,
+      startDate: moment().startOf('minute'),
+      locale: {
+        format: 'YYYY-MM-DDThh:mm'
+      }
+    });
+
+    $.ajax({
+      url: '/api/tags/',
+      dataType: 'json',
+      method: 'GET',
+      contentType: 'application/json',
+      success: function(data) {
+        data.forEach((t) => {
+          availableTags.push(t.name);
+        });
+
+        $( "#form-tags" ).autocomplete({
+          appendTo: '#modal-operation',
+          source: availableTags,
+          change: function( event, ui ) {
+            $("#form-tags").trigger('keypress');
+          }
+        });
+      }
+    });
+
+  });
+
+  $(document).on('click', '#refreshTable', function(e) {
+    refreshTable();
+  });
+
+  $(document).on('click', '.operation-delete', function(e) {
+    var id = $(this).attr('data-id');
+    $.ajax({
+      url: '/api/operations/' + id,
+      dataType: 'json',
+      method: 'DELETE',
+      contentType: 'application/json',
+      success: function(data) {
+        refreshTable();
+      }
+    });
+  });
+
+  $(document).on('click', '.operation-update', function(e) {
+
+    var id = $(this).attr('data-id');
+
+    $.ajax({
+      url: '/api/operations/' + id,
+      dataType: 'json',
+      method: 'GET',
+      contentType: 'application/json',
+      success: function(data) {
+        $('#form-id').val(data.id);
+        $('#form-title').val(data.name);
+        $('#form-startedAt').val(data.startedAt);
+        $('#form-endedAt').val(data.endedAt);
+
+        $('#modal-operation').modal('show');
+        tags = data.tags;
+        renderTags();
+      }
+    });
+
+  });
+  $(document).on('click', '#modal-save', function(e) {
+    var valid = true;
+    var operation = {};
+    
+    operation.id = $('#form-id').val();
+    operation.name = $('#form-title').val();
+    operation.description = $('#form-description').val();
+    operation.startedAt = $('#form-startedAt').val();
+    operation.endedAt = $('#form-endedAt').val();
+    
+    operation.tags = [];
+    $('#form-list-tags li span').each((i, e) => {
+      operation.tags.push($(e).text());
+    });
+
+    for (const [key, value] of Object.entries(operation)) {
+      if (value === ''){
+        delete operation[key];
+      }
+
+      if (key === 'name' && value === '') {
+        $('#form-error').html('Title can not be empty');
+        $('#form-title').addClass('is-invalid');
+        valid = false;
+      }
+      
+      if (key === 'tags' && value.length === 0) {
+        $('#form-error').html('Tags can not be empty');
+        $('#form-tags').addClass('is-invalid');
+        valid = false;
+      }
+    }
+
+    if (valid === true) {
+      if (operation.id === undefined) {
+        post(operation);
+      } else {
+        put(operation);
+      }
+    } else {
+      $('#form-error').removeClass('hidden');
+    }
+
+  });
+
+  // tag form
+  $(document).on('keypress', '#form-tags', function(e) {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === undefined) {
+      let val = $('#form-tags').val();
+      if (val !== '') {
+        if (tags.indexOf(val) >= 0) {
+          alert('Tag name is a duplicate');
+        } else {
+          tags.push(val);
+          renderTags();
+          $('#form-tags').val('');
+          $('#form-tags').focus();
+        }
+      } else {
+        alert('Please type a tag Name');
+      }
+    }
+  });
+
+  function renderTags() {
+    $('#form-list-tags').html('');
+    tags.map((item, index) => {
+      $('#form-list-tags').append(`<li><span>${item}</span><a href="javascript: removeTag(${index})">X</a></li>`);
+    });
+
+  }
+
+  function removeTag(i) {
+    tags = tags.filter(item => tags.indexOf(item) != i);
+    renderTags();
+  }
+
+
+</script>
+
+{% endblock %}

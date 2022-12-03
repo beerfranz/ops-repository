@@ -1,0 +1,2 @@
+basicAuthAdmin "OPS_ADMIN"
+default        "OPS_READONLY"

@@ -1,0 +1,104 @@
+version: '3'
+
+services:
+
+  prod:
+    build:
+      context: api
+      dockerfile: Dockerfile.prod
+    image: ops-repository:prod-local
+    environment:
+      APP_SECRET: 4ac19caa63d28c7a8a7da502a4629201
+      DATABASE_URL: "postgresql://ops:pass@postgres:5432/ops?serverVersion=13&charset=utf8"
+      AUTH_HEADER_ROLES: x-token-user-roles
+      AUTH_HEADER_EMAIL: x-token-user-email
+    volumes:
+      - php_socket:/var/run/php
+    depends_on:
+      - caddy
+      - postgres
+
+  caddy:
+    build:
+      context: .
+      dockerfile: Dockerfile.api.alpine.caddy
+    image: ops-repository:prod-local-caddy
+    environment:
+      SERVER_NAME: ${SERVER_NAME:-localhost, caddy:80}
+      DOMAIN: localhost
+      OAUTH_CLIENT_ID: ${OAUTH_CLIENT_ID}
+      OAUTH_CLIENT_SECRET: ${OAUTH_CLIENT_SECRET}
+      OAUTH_METADATA_URL: ${OAUTH_METADATA_URL}
+      AUTH_GRAFANA_HASHED_PASSWORD: ${AUTH_GRAFANA_HASHED_PASSWORD} #hiccup
+    volumes:
+      - php_socket:/var/run/php
+      - ./cfg/caddy:/etc/caddy/
+    ports:
+      - "80:80"
+      - "443:443"
+      - "2019:2019"
+
+  api:
+    build:
+      context: ./api
+    image: ops-repository:local
+    working_dir: /var/www/html/
+    ports:
+      - "80:80"
+    environment:
+      APP_ENV: dev
+      APP_SECRET: 4ac19caa63d28c7a8a7da502a4629201
+      DATABASE_URL: "postgresql://ops:pass@postgres:5432/ops?serverVersion=13&charset=utf8"
+      XDEBUG_MODE: coverage
+      BASE: /
+      AUTH_HEADER_EMAIL: X-AUTH-EMAIL
+      AUTH_HEADER_ROLES: X-AUTH-ROLES
+    volumes:
+      - ./api:/var/www/html/
+      - ./cfg/apache:/etc/apache2/sites-enabled
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:13-alpine3.16
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: pass
+      POSTGRES_USER: ops
+
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+
+  grafana:
+    image: grafana/grafana:7.5.6
+    user: "472"
+    ports:
+      - 3001:3000
+    environment:
+      - GF_SERVER_ROOT_URL=http://localhost:3001
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+
+  prometheus:
+    image: prom/prometheus:v2.17.2
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./cfg/prometheus:/etc/prometheus
+    command:
+      - --web.enable-lifecycle
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=180d
+      - --web.console.libraries=/usr/share/prometheus/console_libraries
+      - --web.console.templates=/usr/share/prometheus/consoles
+
+volumes:
+  ui_node_modules:
+  php_socket:
