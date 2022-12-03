@@ -17,5 +17,5 @@ jobs:
         run: |
           docker-compose build api
           docker-compose up -d api
-          docker-compose exec -t api php bin/console doctrine:migrations:migrate --no-interaction
-          docker-compose exec -t api php bin/phpunit --coverage-html var/code_coverage/
+          docker-compose exec -T api php bin/console doctrine:migrations:migrate --no-interaction
+          docker-compose exec -T api php bin/phpunit --coverage-html var/code_coverage/
