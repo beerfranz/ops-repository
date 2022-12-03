@@ -18,8 +18,7 @@ jobs:
           docker-compose up -d postgres
           docker-compose build api
           docker-compose up -d api
-          docker-compose exec postgres echo "toto"
-          docker-compose exec -T postgres echo "toto"
 
-          docker-compose exec -T api php bin/console doctrine:migrations:migrate --no-interaction
-          docker-compose exec -T api php bin/phpunit --coverage-html var/code_coverage/
+          docker-compose exec -T -u 1000 api composer install --no-scripts --no-progress
+          docker-compose exec -T -u 1000 api php bin/console doctrine:migrations:migrate --no-interaction
+          docker-compose exec -T -u 1000 api php bin/phpunit --coverage-html var/code_coverage/
