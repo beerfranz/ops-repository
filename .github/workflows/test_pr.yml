@@ -1,0 +1,21 @@
+---
+name: Test pull request
+
+on:
+  pull_request:
+
+jobs:
+  dockerhub:
+    runs-on: ubuntu-latest
+    name: Test pull request
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Run tests
+        shell: bash
+        run: |
+          docker-compose build api
+          docker-compose up -d api
+          docker-compose exec api php bin/console doctrine:migrations:migrate --no-interaction
+          docker-compose exec api php bin/phpunit --coverage-html var/code_coverage/
