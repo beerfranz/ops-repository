@@ -19,4 +19,12 @@ class IndexController extends AbstractController
   {
     return $this->render('index.html.twig');
   }
+
+  /**
+   * @Route("/whoami", name="getWhoami", methods={"GET"})
+   */
+  public function getWhoami(Request $request): JsonResponse
+  {
+    var_dump($this->getUser()); exit;
+  }
 }

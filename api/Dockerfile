@@ -43,3 +43,6 @@ RUN wget https://github.com/symfony-cli/symfony-cli/releases/download/v5.4.10/sy
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 RUN cp /usr/local/etc/php/php.ini-${PHP_INI} /usr/local/etc/php/php.ini
+
+RUN cp /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/ && \
+    cp /etc/apache2/mods-available/headers.load /etc/apache2/mods-enabled/

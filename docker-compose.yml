@@ -10,8 +10,13 @@ services:
     environment:
       APP_SECRET: 4ac19caa63d28c7a8a7da502a4629201
       DATABASE_URL: "postgresql://ops:pass@postgres:5432/ops?serverVersion=13&charset=utf8"
+      AUTH_HEADER_ROLES: x-token-user-roles
+      AUTH_HEADER_EMAIL: x-token-user-email
     volumes:
       - php_socket:/var/run/php
+    depends_on:
+      - caddy
+      - postgres
 
   caddy:
     build:
@@ -20,11 +25,18 @@ services:
     image: ops-repository:prod-local-caddy
     environment:
       SERVER_NAME: ${SERVER_NAME:-localhost, caddy:80}
+      DOMAIN: localhost
+      OAUTH_CLIENT_ID: ${OAUTH_CLIENT_ID}
+      OAUTH_CLIENT_SECRET: ${OAUTH_CLIENT_SECRET}
+      OAUTH_METADATA_URL: ${OAUTH_METADATA_URL}
+      AUTH_GRAFANA_HASHED_PASSWORD: ${AUTH_GRAFANA_HASHED_PASSWORD} #hiccup
     volumes:
       - php_socket:/var/run/php
+      - ./cfg/caddy:/etc/caddy/
     ports:
       - "80:80"
       - "443:443"
+      - "2019:2019"
 
   api:
     build:
@@ -39,34 +51,13 @@ services:
       DATABASE_URL: "postgresql://ops:pass@postgres:5432/ops?serverVersion=13&charset=utf8"
       XDEBUG_MODE: coverage
       BASE: /
+      AUTH_HEADER_EMAIL: X-AUTH-EMAIL
+      AUTH_HEADER_ROLES: X-AUTH-ROLES
     volumes:
       - ./api:/var/www/html/
       - ./cfg/apache:/etc/apache2/sites-enabled
     depends_on:
       - postgres
-
-  db-update:
-    image: ops-repository:local
-    user: "1000:1000"
-    environment:
-      APP_ENV: dev
-      DATABASE_URL: "postgresql://ops:pass@postgres:5432/ops?serverVersion=13&charset=utf8"
-    volumes:
-      - ./api:/var/www/html/
-    command: php bin/console doctrine:schema:update --force
-
-  ui:
-    image: node:16.17.1-slim
-    working_dir: /home/node/app
-    environment:
-      PORT: 3000
-      REACT_APP_API_URL: http://localhost/api
-    ports:
-      - "3000:3000"
-    command: npm start
-    volumes:
-      - ./ui:/home/node/app
-      - ui_node_modules:/home/node/app/node_modules
 
   postgres:
     image: postgres:13-alpine3.16

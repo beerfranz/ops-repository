@@ -22,9 +22,13 @@ swagger URL: /api/docs
 
 ## Security
 
-**No security layer is embedded.**
-
 The recommandation is to use a reverse proxy in front of this application to handle authN & authZ, like OIDC, api key, etc...
+
+The default caddy configuration show examples with a generic SSO and basicauth.
+
+**App roles**
+* `OPS_ADMIN`
+* `OPS_READONLY`
 
 ## Connection with Grafana
 
@@ -70,14 +74,6 @@ Run tests:
 ```
 docker-compose exec api php bin/phpunit --coverage-html var/code_coverage/
 ```
-
-**UI**
-Not working
-```
-docker-compose run ui npm install
-docker-compose up -d ui
-```
-
 
 ## Knowledge base
 

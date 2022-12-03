@@ -11,6 +11,8 @@ ARG CADDY_VERSION=2
 # Prod image
 FROM php:${PHP_VERSION}-fpm-bullseye AS app_php
 
+ENV DATABASE_URL="postgresql://app:!ChangeMe!@127.0.0.1:5432/app?serverVersion=14&charset=utf8"
+
 # Allow to use development versions of Symfony
 ARG STABILITY="stable"
 ENV STABILITY ${STABILITY}

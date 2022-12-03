@@ -7,12 +7,15 @@ use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 class TagTest extends ApiTestCase
 {
 
+  private $authAdmin = [ 'X-AUTH-EMAIL' => 'unitTest', 'X-AUTH-ROLES' => 'OPS_ADMIN' ];
+  private $authUser  = [ 'X-AUTH-EMAIL' => 'unitTest', 'X-AUTH-ROLES' => 'OPS_READONLY' ];
+
   /**
    * @dataProvider dataProviderCollection
    **/
   public function testCollection(array $context, array $expected): void
   {
-    $response = static::createClient()->request($context['method'], $context['path'], [ 'json' => $context['json'] ]);
+    $response = static::createClient()->request($context['method'], $context['path'], [ 'headers' => $context['headers'], 'json' => $context['json'] ]);
 
     if (isset($expected['success']))
     {
@@ -35,6 +38,7 @@ class TagTest extends ApiTestCase
     $expected = [];
 
     $context['path'] = '/api/tags';
+    $context['headers'] = $this->authAdmin;
 
     $context['method'] = 'GET';
     $context['json'] = null;

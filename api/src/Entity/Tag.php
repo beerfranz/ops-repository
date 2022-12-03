@@ -21,6 +21,12 @@ use Doctrine\ORM\Mapping as ORM;
     normalizationContext: ['groups' => ['tag:read']],
     denormalizationContext: ['groups' => ['tag:write']],
 )]
+#[Get(security: "is_granted('OPS_READ')")]
+#[GetCollection(security: "is_granted('OPS_READ')")]
+#[Put(security: "is_granted('OPS_WRITE')")]
+#[Post(security: "is_granted('OPS_WRITE')")]
+#[Patch(security: "is_granted('OPS_WRITE')")]
+#[Delete(security: "is_granted('OPS_WRITE')")]
 class Tag
 {
     #[ORM\Id]
