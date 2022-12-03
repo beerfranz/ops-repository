@@ -1,6 +1,6 @@
 on:
   push:
-    branches: init
+    branches: main
 
 jobs:
   dockerhub:
